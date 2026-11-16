@@ -15,10 +15,10 @@ export async function api<T>(path: string, options?: {method?:string; body?:unkn
     });
   } catch (error) {
     if (options?.signal?.aborted) throw error;
-    throw new ApiError(503,'The local service is unavailable.');
+    throw new ApiError(503,'The studio API is unavailable.');
   }
   const data = await response.json().catch(() => null);
-  if (!response.ok || data === null) throw new ApiError(response.status,data?.error ?? 'The local service returned an unexpected response.');
+  if (!response.ok || data === null) throw new ApiError(response.status,data?.error ?? 'The studio API returned an unexpected response.');
   return data as T;
 }
 

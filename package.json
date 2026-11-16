@@ -10,7 +10,7 @@
     "dev": "concurrently -k -n API,WEB \"npm:dev:api\" \"npm:dev:web\"",
     "dev:web": "vite --host 127.0.0.1",
     "dev:api": "tsx watch server/index.ts",
-    "build": "npm run typecheck && vite build && node scripts/build-offline.mjs && tsc -p tsconfig.server.json",
+    "build": "npm run typecheck && npm run build:web && npm run build:server",
     "start": "node dist-server/index.js",
     "migrate": "tsx server/cli.ts migrate",
     "admin:create": "tsx server/cli.ts admin",
@@ -19,10 +19,11 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "predev:web": "node scripts/prepare-pdf-assets.mjs",
-    "prebuild": "node scripts/prepare-pdf-assets.mjs",
     "pretest:e2e": "npm run build",
     "test:unit": "vitest run tests/engine.test.ts tests/recovery.test.tsx",
-    "test:integration": "vitest run tests/server.test.ts"
+    "test:integration": "vitest run tests/server.test.ts",
+    "build:web": "node scripts/prepare-pdf-assets.mjs && vite build && node scripts/build-offline.mjs",
+    "build:server": "tsc -p tsconfig.server.json"
   },
   "dependencies": {
     "@fastify/cookie": "^11",
@@ -40,6 +41,7 @@
     "motion": "^12",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.5.438",
+    "pg": "^8.23.1",
     "react": "^19",
     "react-dom": "^19",
     "react-router-dom": "^7",
@@ -53,6 +55,7 @@
     "@tailwindcss/vite": "^4",
     "@testing-library/react": "^16",
     "@types/node": "^24",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5",

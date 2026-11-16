@@ -45,7 +45,7 @@ function Docs() {
     <Card id="mp4" title="MP4 videos"><p>The inspector reads top-level boxes, looks for the movie index and media data, and lists track and codec identifiers. The repair option preserves an intact container prefix and discards a malformed auxiliary trailer or incomplete final box header.</p><p>Output has to pass structural checks and browser decoding samples. Missing movie indexes, truncated media payloads, arbitrary segments and codecs the current browser cannot decode are unsupported.</p></Card>
     <Card id="privacy" title="Local processing"><p>Files, filenames, previews and results stay in tab memory. The app processes binary data in a worker, uses short-lived object URLs for previews, and never uploads selected files. Optional services use separate endpoints for text feedback and consented format-and-outcome counters.</p></Card>
     <Card id="troubleshooting" title="Browser requirements and troubleshooting"><p>Use a current Chromium, Firefox or Safari release with module workers and OffscreenCanvas. MP4 support depends on your browser and system codecs. If rendering times out, use a smaller file. If copied pages fail verification, try exporting page images.</p><FAQ/></Card>
-    <Card id="developer" title="Developer guide"><p>The project README covers local setup, database migrations and tests. The worker owns binary inspection and PDF rendering. The UI checks video decoding and only exposes a downloadable output after verification. The optional Fastify service uses SQLite for settings, feedback and admin sessions.</p><p>To contribute locally, reproduce the issue with a synthetic fixture, add a test that verifies the output, and run type checks, lint and the browser tests. Keep fixtures free of private or licensed source files.</p></Card>
+    <Card id="developer" title="Developer guide"><p>The project README covers local setup, database migrations and tests. The worker owns binary inspection and PDF rendering. The UI checks video decoding and only exposes a downloadable output after verification. The optional Fastify API stores settings, feedback and admin sessions in local SQLite or hosted PostgreSQL.</p><p>To contribute locally, reproduce the issue with a synthetic fixture, add a test that verifies the output, and run type checks, lint and the browser tests. Keep fixtures free of private or licensed source files.</p></Card>
   </>;
 }
 
@@ -56,7 +56,7 @@ function About() {
       <article className="feature-card violet"><span className="tile"><Code2 size={25}/></span><h3>Open development</h3><p>The local source is organized for inspection and contribution. See the documentation for engine boundaries and fixture-based tests.</p><Link className="text-link" to="/docs#developer">Developer guide <ArrowRight size={15}/></Link></article>
       <article className="feature-card teal"><span className="tile"><ShieldCheck size={25}/></span><h3>Privacy principles</h3><p>Keep files on-device, separate optional services from processing, and give users control over what they send.</p><Link className="text-link" to="/privacy">Privacy & terms <ArrowRight size={15}/></Link></article>
     </div>
-    <Card title="Technology"><p>React and TypeScript power the studio. PDF.js renders documents, pdf-lib rebuilds pages, and a bounded parser reads MP4 structures. Fastify and SQLite power the optional local service.</p></Card>
+    <Card title="Technology"><p>React and TypeScript power the studio. PDF.js renders documents, pdf-lib rebuilds pages, and a bounded parser reads MP4 structures. Fastify uses SQLite locally and PostgreSQL on the hosted service.</p></Card>
     <Card title="Roadmap"><p>Areas for further research include more MP4 damage patterns, additional codecs, stronger output comparison, and accessible document reconstruction.</p></Card>
   </>;
 }
@@ -64,8 +64,8 @@ function About() {
 function Privacy() {
   return <>
     <Card title="Files and recovery data"><p>Selected files are read and processed on your device. The workspace holds the active file, its findings and output in memory. Reloading or closing the tab clears these. Reports and recovered files are saved only when you export them.</p></Card>
-    <Card title="Preferences and optional services"><p>Your preferences are saved in browser storage. If you enable session history, the tab keeps format, size, time and outcome in memory. File names and file bytes are excluded from history.</p><p>The site can request public configuration from the local backend. Usage statistics are off by default. Only with your opt-in and backend enablement does the service receive format and outcome. It stores those fields with a timestamp, without persistent identifiers.</p></Card>
-    <Card title="Feedback and admin"><p>Feedback sends the category and message you enter to the local server. Authorized admins can read and update its review state. Avoid putting sensitive information in your message. Admin sign-in uses a limited-duration session cookie.</p></Card>
+    <Card title="Preferences and optional services"><p>Your preferences are saved in browser storage. If you enable session history, the tab keeps format, size, time and outcome in memory. File names and file bytes are excluded from history.</p><p>The site requests public configuration from the studio API. Usage statistics are off by default. Only with your opt-in and backend enablement does the service receive format and outcome. It stores those fields with a timestamp, without persistent identifiers. The hosted API uses the request IP to rate-limit submissions.</p></Card>
+    <Card title="Feedback and admin"><p>Feedback sends the category and message you enter to the studio API. Authorized admins can read and update its review state. Avoid putting sensitive information in your message. Admin sign-in uses a limited-duration session cookie.</p></Card>
     <Card title="Terms of use"><p>Use the workspace with files you are authorized to access. Keep the original before attempting recovery. A verified result passed the checks shown in its report. Review the recovered file for completeness before relying on it.</p></Card>
   </>;
 }
@@ -82,7 +82,7 @@ function Preferences() {
     </Card>
     <Card title="Privacy and history">
       <label className="setting"><input type="checkbox" checked={preferences.history} onChange={event => setPrefs({history:event.target.checked})}/><span><strong>Keep history for this tab</strong><small>Record format, size and outcome until the tab closes.</small></span></label>
-      <label className="setting"><input type="checkbox" checked={preferences.analytics} onChange={event => setPrefs({analytics:event.target.checked})}/><span><strong>Share usage statistics</strong><small>Send format and outcome only when the local service accepts usage events.</small></span></label>
+      <label className="setting"><input type="checkbox" checked={preferences.analytics} onChange={event => setPrefs({analytics:event.target.checked})}/><span><strong>Share usage statistics</strong><small>Send format and outcome only when the studio API accepts usage events.</small></span></label>
       {preferences.history && (history.length ? <>
         <ul className="history">{history.map((item,index) => <li key={index}><strong>{item.format} · {formatSize(item.size)}</strong><span>{item.outcome} · {new Date(item.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span></li>)}</ul>
         <Button variant="secondary" onClick={clearHistory}>Clear history</Button>

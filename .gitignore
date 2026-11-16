@@ -3,6 +3,10 @@ dist/
 dist-server/
 data/
 .env
+.env.*
+!.env.example
+.dev.vars*
+.wrangler/
 test-results/
 playwright-report/
 public/pdf-assets/

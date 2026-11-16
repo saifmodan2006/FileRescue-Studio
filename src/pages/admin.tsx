@@ -77,7 +77,7 @@ export default function AdminPage() {
 
   return <div className={'site-width page admin-page '+(!session ? 'narrow' : '')}>
     <div className="page-heading"><span className="overline">FILE RESCUE STUDIO</span><h1>{session ? 'Administration' : 'Admin sign-in'}</h1>
-      <p>{session ? 'Manage feedback, announcements, and optional usage counters.' : 'Sign in with an administrator account created on this local server.'}</p></div>
+      <p>{session ? 'Manage feedback, announcements, and optional usage counters.' : 'Sign in with a studio administrator account.'}</p></div>
     {error && <p className="alert" role="alert">{error}</p>}
     {notice && <p className="status-positive" role="status">{notice}</p>}
     {session === undefined && <div className="skeleton" role="status" aria-label="Checking admin session"/>}

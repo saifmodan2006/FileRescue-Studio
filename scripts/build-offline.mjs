@@ -4,16 +4,20 @@ import {join,relative,resolve} from 'node:path';
 
 const base = resolve('dist');
 const entries = await readdir(base,{recursive:true,withFileTypes:true});
-const resources = entries.filter(item => item.isFile() && item.name !== 'sw.js')
+const deploymentFiles = new Set(['sw.js','_routes.json','_headers']);
+const resources = entries.filter(item => item.isFile() && !deploymentFiles.has(item.name))
   .map(item => '/' + relative(base,join(item.parentPath,item.name)).replaceAll('\\','/'))
   .sort();
 const hash = createHash('sha256');
 for (const resource of resources) hash.update(await readFile('dist'+resource));
 const version = hash.digest('hex').slice(0,16);
+// Pages can redirect /index.html to /. Cache the canonical URL so the cached
+// navigation response never depends on redirects.
+const cachePaths = resources.map(resource => resource === '/index.html' ? '/' : resource);
 await writeFile('dist/sw.js',`
 const prefix = 'filerescue-';
 const cacheName = prefix + '${version}';
-const resources = ${JSON.stringify(resources)};
+const resources = ${JSON.stringify(cachePaths)};
 const known = new Set(resources);
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(cacheName).then(cache => cache.addAll(resources)));
@@ -26,7 +30,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
   if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).catch(async () => (await caches.open(cacheName)).match('/index.html')));
+    event.respondWith(fetch(request).catch(async () => (await caches.open(cacheName)).match('/')));
   } else if (known.has(url.pathname)) {
     event.respondWith(caches.open(cacheName).then(cache => cache.match(url.pathname)).then(hit => hit ?? fetch(request)));
   }

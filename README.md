@@ -1,6 +1,6 @@
 # FileRescue Studio
 
-**Recover What Matters.** Diagnose a PDF or MP4, attempt a supported repair, review the verification checks, and download the result. File handling runs in your browser. The local API provides feedback, announcements, consented usage counters and administration.
+**Recover What Matters.** Diagnose a PDF or MP4, attempt a supported repair, review the verification checks, and download the result. File handling runs in your browser. The studio API provides feedback, announcements, consented usage counters and administration.
 
 ## Start locally
 
@@ -20,7 +20,7 @@ To add a local administrator:
 npm run admin:create
 ```
 
-Run this in an interactive terminal. Enter a username and a passphrase of at least 12 characters when prompted. Open [admin sign-in](http://127.0.0.1:5173/admin) with those credentials. The database starts without any admin users. Account setup is local and is disabled when `NODE_ENV=production`.
+Run this in an interactive terminal. Enter a username and a passphrase of at least 12 characters when prompted. Open [admin sign-in](http://127.0.0.1:5173/admin) with those credentials. Databases start without any admin users. To initialize an administrator for a hosted instance, run the same command from a trusted terminal with its PostgreSQL connection string in `DATABASE_URL`.
 
 Optional settings are listed in `.env.example`. Copy it to `.env` to change the database path or port. Database migrations are transactional, idempotent, and also run when the API starts.
 
@@ -32,6 +32,8 @@ npm start
 ```
 
 Open [the built app](http://127.0.0.1:4310/). Opening the workspace online lets the service worker prepare the offline cache. Once the browser has cached the build, the workspace can open again and process files offline. The API endpoints stay online-only. The browser may clear cached assets.
+
+See [Free-tier deployment](DEPLOYMENT.md) for the Cloudflare Pages, Render and Neon setup, configuration and live verification steps.
 
 ## Use the workspace
 
@@ -51,7 +53,8 @@ The homepage sample is a real two-page PDF generated in the browser with its ter
 | PDF rendering, extraction and verification | `src/engine/pdf.ts` |
 | MP4 box and media-offset inspection, trailer cleanup | `src/engine/mp4.ts` |
 | Fastify endpoints, cookie sessions and input validation | `server/app.ts`, `server/auth.ts` |
-| SQLite schema and transactional migrations | `server/schema.ts`, `server/db.ts` |
+| SQLite and PostgreSQL storage and migrations | `server/store.ts`, `server/schema.ts`, `server/db.ts`, `server/postgres.ts` |
+| Same-origin hosted API bridge | `functions/api/[[route]].ts` |
 | Offline cache manifest | `scripts/build-offline.mjs` |
 
 The workspace keeps the current file, report and output in tab memory, including when you open the report and return. Selecting another file replaces the active report. Optional history keeps format, size, time and outcome in memory. Preferences persist in local browser storage. Exports are explicit downloads. The server has no file-upload endpoint.

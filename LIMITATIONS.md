@@ -20,5 +20,5 @@
 
 - Files are limited to 64 MiB. The queue holds up to 10 files and processes one at a time. Each worker job has a two-minute timeout. Browser video checks have per-step time limits.
 - Use a current browser supporting module and nested workers, OffscreenCanvas, canvas Blob output and DecompressionStream. Browser automation was performed in Chromium. Firefox, Safari, native mobile devices and OS-level PWA installation were outside the automated test matrix.
-- The built site prepares its offline cache when you first open the workspace. The cache needs a successful online setup and can be cleared or evicted by the browser. Offline PDF and MP4 recovery use the same local files and engines as online recovery. Backend services need a connection to the local API.
+- The built site prepares its offline cache when you first open the workspace. The cache needs a successful online setup and can be cleared or evicted by the browser. Offline PDF and MP4 recovery use the same local files and engines as online recovery. Feedback and admin features need a connection to the studio API. A free Render instance can take about a minute to wake up.
 - Recovery output and the detailed report live in tab memory. Download them before replacing the active file or closing the tab. Optional session history holds metadata only and expires with the tab.

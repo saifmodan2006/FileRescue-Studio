@@ -4,6 +4,8 @@ import {DatabaseSync} from 'node:sqlite';
 import type {SQLInputValue} from 'node:sqlite';
 import {drizzle} from 'drizzle-orm/sqlite-proxy';
 import type {AsyncBatchRemoteCallback} from 'drizzle-orm/sqlite-proxy';
+import {SQLiteSyncDialect} from 'drizzle-orm/sqlite-core';
+import type {SQL} from 'drizzle-orm';
 import * as schema from './schema.js';
 
 const migrations = [
@@ -48,18 +50,38 @@ export function openDatabase(path: string) {
       }
       return {rows:statement.all(...params).map(row => Object.values(row))};
     }
-    const batch: AsyncBatchRemoteCallback = async statements => {
+    function atomic<T>(work:() => T) {
       sqlite.exec('BEGIN IMMEDIATE');
       try {
-        const results = statements.map(item => query(item.sql,item.params,item.method));
+        const result = work();
         sqlite.exec('COMMIT');
-        return results;
+        return result;
       } catch (error) {
         sqlite.exec('ROLLBACK');
         throw error;
       }
+    }
+    const batch: AsyncBatchRemoteCallback = async statements => atomic(() =>
+      statements.map(item => query(item.sql,item.params,item.method)));
+    const dialect = new SQLiteSyncDialect();
+    function prepare(statement:SQL) {
+      const {sql,params} = dialect.sqlToQuery(statement);
+      return {query:sqlite.prepare(sql),params:params.map(value => typeof value === 'boolean' ? Number(value) : value as SQLInputValue)};
+    }
+    return {
+      db:drizzle(async (sql,params,method) => query(sql,params,method),batch,{schema}),
+      rows:async <T extends Record<string,unknown>>(statement:SQL) => {
+        const {query,params} = prepare(statement);
+        return query.all(...params) as T[];
+      },
+      batch:async (statements:SQL[]) => atomic(() => {
+        for (const statement of statements) {
+          const {query,params} = prepare(statement);
+          query.run(...params);
+        }
+      }),
+      close:() => sqlite.close(),
     };
-    return {db:drizzle(async (sql,params,method) => query(sql,params,method),batch,{schema}), close:() => sqlite.close()};
   } catch (error) {
     sqlite.close();
     throw error;
