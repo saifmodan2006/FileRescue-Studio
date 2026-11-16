@@ -1,5 +1,7 @@
 # FileRescue Studio
 
+[Open FileRescue Studio](https://filerescue-studio.pages.dev/)
+
 **Recover What Matters.** Diagnose a PDF or MP4, attempt a supported repair, review the verification checks, and download the result. File handling runs in your browser. The studio API provides feedback, announcements, consented usage counters and administration.
 
 ## Start locally
