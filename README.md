@@ -1,8 +1,12 @@
 # FileRescue Studio
 
-[Open FileRescue Studio](https://filerescue-studio.pages.dev/)
-
 **Recover What Matters.** Diagnose a PDF or MP4, attempt a supported repair, review the verification checks, and download the result. File handling runs in your browser. The studio API provides feedback, announcements, consented usage counters and administration.
+
+## Live demo
+
+[Open FileRescue Studio](https://filerescue-studio.pages.dev/) to diagnose your own PDF or MP4. File recovery runs on your device and requires no account.
+
+To see a recovery from start to finish, [try the built-in sample PDF](https://filerescue-studio.pages.dev/repair?sample=1). It's a two-page document with its end marker removed. Review the diagnosis, select **Attempt recovery**, then download the verified result or export the recovery report as JSON.
 
 ## Start locally
 
@@ -43,8 +47,6 @@ See [Free-tier deployment](DEPLOYMENT.md) for the Cloudflare Pages, Render and N
 2. Read findings and select a supported recovery method. For a PDF, select the readable pages you want to keep.
 3. Attempt recovery and review the verification checks. The output can be downloaded after those checks pass.
 4. Open the report to view the findings, attempts and output details. Export structured JSON, or choose **Print / save PDF** and select the browser’s PDF destination.
-
-The homepage sample is a real two-page PDF generated in the browser with its terminal marker removed.
 
 ## Architecture
 
